@@ -339,37 +339,7 @@ void mouseMove(int x, int y) {
 		lz = -cos(angle + deltaAngleX);
 	}
 }
-//==================================================================================================
-bool CheckCollision(BaseObject* obj1, BaseObject* obj2)
-{
-	bool collision = false;
-	float x1, y1, z1;
-	float x2, y2, z2;
-	// định nghĩa lại tọa độ của đối tượng, là tâm của đối tượng
-	// object 1:
-	x1 = obj1->getRect().x + obj1->getLeght() * 0.5;
-	y1 = obj1->getRect().y + obj1->getHeight() * 0.5;
-	z1 = obj1->getRect().z + obj1->getWidth() * 0.5;
-	//object 2:
-	x2 = obj2->getRect().x + obj2->getLeght() * 0.5;
-	y2 = obj2->getRect().y + obj2->getHeight() * 0.5;
-	z2 = obj2->getRect().z + obj2->getWidth() * 0.5;
-	
-	if (
-		(x2 > (x1 - obj1->getLeght() * 0.5 - obj2->getLeght() * 0.5) && x2 < (x1 + obj1->getLeght() * 0.5 + obj2->getLeght() * 0.5)) &&
-		(y2 > (y1 - obj1->getHeight() * 0.5 - obj2->getHeight() * 0.5) && y2 < (y1 + obj1->getHeight() * 0.5 + obj2->getHeight() * 0.5)) &&
-		(z2 > (z1 - obj1->getWidth() * 0.5 - obj2->getWidth() * 0.5) && z2 < (z1 + obj1->getWidth() * 0.5 + obj2->getWidth() * 0.5))
-		)
-		{
-			collision = true;
-		}
-	else
-		{
-			collision = false;
-		}
-	return collision;
-}
-//================================== Hàm sử lý hiển thị lên màn hình ===============================
+
 void RenderScene()
 {	
 	if (detal_moving != 0.0)
@@ -394,9 +364,6 @@ void RenderScene()
 	texture1->UnBin();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
-	//============== set older camera position ================
-	old_rect_cam = cam->getRectCam();
-	old_rect_cam_y = cam->getRectCam().y;
 	//Render xe may
 	for (int i = 0; i < list_xemay.size(); i++)
 	{
@@ -404,11 +371,6 @@ void RenderScene()
 		if (xemay != NULL)
 		{
 			xemay->CreateXemay();
-			if (CheckCollision(xemay, cam)==true)
-			{
-				cam->setRect(old_rect_cam.x-2,old_rect_cam.y,old_rect_cam.z-2);
-				//detal_moving = 0.0;
-			}
 		}
 	}
 	//render sky
@@ -418,11 +380,7 @@ void RenderScene()
 		if (sky != NULL)
 		{
 			sky->CreateSky();
-			if (CheckCollision(sky, cam) == true)
-			{
-				cam->setRect(old_rect_cam.x - 2, old_rect_cam.y, old_rect_cam.z - 2);
 			
-			}
 		}
 	}
 	//set camera condition on ground
