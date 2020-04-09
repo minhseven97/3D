@@ -1,10 +1,8 @@
 ﻿#include "comHeader.h"
 #include "BasicCad.h"
 #include "Texture.h"
-#include "Building.h"
 #include "Camera.h"
-#include  "OBJModel.h"
-
+#include"Xemay.h"
 #pragma comment(lib,"legacy_stdio_definitions.lib")
 
 #define SCREEN_WIDTH 1600
@@ -16,7 +14,7 @@
 #define K_MAT_YELLOW 3
 #define K_MAT_PINK  4
 #define K_MAT_WHITE 10
-#define NUM_BUILDING 10
+#define NUM_XEMAY 10
 
 #define  DIS_CAM_TO_MODE 10
 #define  GROUND_SIZE 1000
@@ -30,8 +28,8 @@ float old_rect_cam_y;
 //======================================================
 char brics_bmp[100] = { "brics.bmp" }; // lưu trữ tên file texture
 char Ground_bmp[100] = { "ground1.bmp" };
-char Building_bmp[100] = { "car.bmp" };
-char s[] = { "test.obj" };
+char Xemay_bmp[100] = { "car.bmp" };
+
 
 
 float lx = 0.0;
@@ -44,18 +42,18 @@ float detal_moving = 0.0;
 float detal_angle = 0.0;
 int xx = 400;
 int zz = -200;
-Reader obj;
+
 
 float angle_obj;
 //================================= class Texture =======================================
 Texture* texture1;
 Texture* texture2;
-//================================= class Building ======================================
-std::vector<Building*>list_building;
+//================================= class xe may ======================================
+std::vector<Xemay*>list_xemay;
 //================================= class Camera ======================================
 Camera* cam;
 //=======================================================================================
-Building::Building(float width, float leght, float height, int x, int y, int z, Texture* texture)
+Xemay::Xemay(float width, float leght, float height, int x, int y, int z, Texture* texture)
 {
 	this->width = width;
 	this->leght = leght;
@@ -66,11 +64,11 @@ Building::Building(float width, float leght, float height, int x, int y, int z, 
 	this->_texture = texture;
 	this->_box = NULL;
 }
-Building::~Building()
+Xemay::~Xemay()
 {
 
 }
-void Building::CreateBuilding()
+void Xemay::CreateXemay()
 {
 	_box = BasicCad::MakeBox(leght, width, height);
 	glPushMatrix();
@@ -175,29 +173,29 @@ void OnKeyUp(unsigned char ch, int x, int y)
 {
 	switch (ch)
 	{
-	case 'A':
-		xx -= 5;
+	case 'q':
+		xx -= 20;
 		break;
 	case 'a':
-		xx -= 5;
+		xx -= 10;
 		break;
 	case 'S':
-		zz += 5;
+		zz += 10;
 		break;
 	case 's':
-		zz += 5;
+		zz += 10;
 		break;
 	case 'D':
-		xx += 5;
+		xx += 10;
 		break;
 	case 'd':
-		xx += 5;
+		xx += 10;
 		break;
 	case 'W':
-		zz -= 5;
+		zz -= 10;
 		break;
 	case 'w':
-		zz -= 5;
+		zz -= 10;
 		break;
 	default:
 		break;
@@ -208,7 +206,7 @@ void OnKeyDown(unsigned char ch, int x, int y)
 {
 	switch (ch)
 	{
-	case 'A':
+	case 'q':
 		break;
 	case 'a':
 		break;
@@ -368,14 +366,14 @@ void RenderScene()
 	//============== set older camera position ================
 	old_rect_cam = cam->getRectCam();
 	old_rect_cam_y = cam->getRectCam().y;
-	//Render building
-	for (int i = 0; i < list_building.size(); i++)
+	//Render xe may
+	for (int i = 0; i < list_xemay.size(); i++)
 	{
-		Building* building = list_building.at(i);
-		if (building != NULL)
+		Xemay* xemay = list_xemay.at(i);
+		if (xemay != NULL)
 		{
-			building->CreateBuilding();
-			if (CheckCollision(building, cam)==true)
+			xemay->CreateXemay();
+			if (CheckCollision(xemay, cam)==true)
 			{
 				cam->setRect(old_rect_cam.x-2,old_rect_cam.y,old_rect_cam.z-2);
 				//detal_moving = 0.0;
@@ -395,16 +393,16 @@ void RenderScene()
 	glFlush();
 	glutPostRedisplay();
 }
-//=================== Hàm tạo đối tượng building
-std::vector<Building*> MakeBuilding()
+//=================== Hàm tạo đối tượng xe
+std::vector<Xemay*> MakeXemay()
 {
-	std::vector<Building*> list_building;
-	Building* building[NUM_BUILDING];
-	building[1] = new Building(35, 35, 35, 400, 0, -200, texture2);
-	list_building.push_back(building[1]);
-	/*building[2] = new Building(175, 80, 80, 110, 0, 0, texture1);
-	list_building.push_back(building[2]);*/
-	return list_building;
+	std::vector<Xemay*> list_xemay;
+	Xemay* xemay[NUM_XEMAY];
+	xemay[1] = new Xemay(33, 33, 33, 400, 0, -200, texture2);
+	list_xemay.push_back(xemay[1]);
+	/*xe may[2] = new xe may(175, 80, 80, 110, 0, 0, texture1);
+	list_xe may.push_back(xe may[2]);*/
+	return list_xemay;
 }
 //=================== Hàm khởi tạo
 void Init()
@@ -436,10 +434,10 @@ void Init()
 
 	// initialzation texture class
 	texture1 = new Texture(Ground_bmp, GL_TEXTURE_2D);
-	texture2 = new Texture(Building_bmp, GL_TEXTURE_2D);
+	texture2 = new Texture(Xemay_bmp, GL_TEXTURE_2D);
 
-	//initialzation building class
-	list_building = MakeBuilding();
+	//initialzation xe may class
+	list_xemay = MakeXemay();
 	//initialzation camera class
 	cam = new Camera(0.0, 10.0, 30.0,10,10,10);
 	//initialzation background
