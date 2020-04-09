@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include"Xemay.h"
+#include"Sky.h"
 #pragma comment(lib,"legacy_stdio_definitions.lib")
 
 #define SCREEN_WIDTH 1600
@@ -15,10 +16,11 @@
 #define K_MAT_PINK  4
 #define K_MAT_WHITE 10
 #define NUM_XEMAY 10
+#define NUM_SKY 10
 
 #define  DIS_CAM_TO_MODE 10
 #define  GROUND_SIZE 1000
-#define  CAMERA_FAR 1200
+#define  CAMERA_FAR 1500
 
 GLuint g_ground;
 GLuint g_box;                          // sử dụng để tạo display list cho đối tượng.
@@ -29,7 +31,7 @@ float old_rect_cam_y;
 char brics_bmp[100] = { "brics.bmp" }; // lưu trữ tên file texture
 char Ground_bmp[100] = { "ground1.bmp" };
 char Xemay_bmp[100] = { "car.bmp" };
-
+char Sky_bmp[100] = { "skyy.bmp" };
 
 
 float lx = 0.0;
@@ -48,8 +50,10 @@ float angle_obj;
 //================================= class Texture =======================================
 Texture* texture1;
 Texture* texture2;
+Texture* texture3;
 //================================= class xe may ======================================
 std::vector<Xemay*>list_xemay;
+std::vector<Sky*>list_sky;
 //================================= class Camera ======================================
 Camera* cam;
 //=======================================================================================
@@ -73,6 +77,33 @@ void Xemay::CreateXemay()
 	_box = BasicCad::MakeBox(leght, width, height);
 	glPushMatrix();
 	glTranslatef(xx, rect.y, zz);
+	glEnable(GL_TEXTURE_2D);
+	_texture->Bin();
+	glCallList(_box);
+	_texture->UnBin();
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+}
+Sky::Sky(float width, float leght, float height, int x, int y, int z, Texture* texture)
+{
+	this->width = width;
+	this->leght = leght;
+	this->height = height;
+	this->rect.x = x;
+	this->rect.y = y;
+	this->rect.z = z;
+	this->_texture = texture;
+	this->_box = NULL;
+}
+Sky::~Sky()
+{
+
+}
+void Sky::CreateSky()
+{
+	_box = BasicCad::MakeBox(leght, width, height);
+	glPushMatrix();
+	glTranslatef(rect.x, rect.y, rect.z);
 	glEnable(GL_TEXTURE_2D);
 	_texture->Bin();
 	glCallList(_box);
@@ -380,6 +411,20 @@ void RenderScene()
 			}
 		}
 	}
+	//render sky
+	for (int i = 0; i < list_sky.size(); i++)
+	{
+		Sky* sky = list_sky.at(i);
+		if (sky != NULL)
+		{
+			sky->CreateSky();
+			if (CheckCollision(sky, cam) == true)
+			{
+				cam->setRect(old_rect_cam.x - 2, old_rect_cam.y, old_rect_cam.z - 2);
+			
+			}
+		}
+	}
 	//set camera condition on ground
 	if (cam->getRectCam().y <= 0.0)
 	{
@@ -400,9 +445,20 @@ std::vector<Xemay*> MakeXemay()
 	Xemay* xemay[NUM_XEMAY];
 	xemay[1] = new Xemay(33, 33, 33, 400, 0, -200, texture2);
 	list_xemay.push_back(xemay[1]);
-	/*xe may[2] = new xe may(175, 80, 80, 110, 0, 0, texture1);
-	list_xe may.push_back(xe may[2]);*/
+	
 	return list_xemay;
+}
+std::vector<Sky*> MakeSky()
+{
+	std::vector<Sky*> list_sky;
+	Sky* sky[NUM_SKY];
+	sky[1] = new Sky(0, 2000, 2000, -1000, 0, -500, texture3);
+	list_sky.push_back(sky[1]);
+	/*sky[2] = new Sky(900, 0, 1700, -499, 0, -400, texture3);
+	list_sky.push_back(sky[2]);
+	sky[3] = new Sky(900, 0, 1700, 499, 0, -400, texture3);
+	list_sky.push_back(sky[3]);*/
+	return list_sky;
 }
 //=================== Hàm khởi tạo
 void Init()
@@ -435,9 +491,11 @@ void Init()
 	// initialzation texture class
 	texture1 = new Texture(Ground_bmp, GL_TEXTURE_2D);
 	texture2 = new Texture(Xemay_bmp, GL_TEXTURE_2D);
+	texture3 = new Texture(Sky_bmp, GL_TEXTURE_2D);
 
 	//initialzation xe may class
 	list_xemay = MakeXemay();
+	list_sky = MakeSky();
 	//initialzation camera class
 	cam = new Camera(0.0, 10.0, 30.0,10,10,10);
 	//initialzation background
